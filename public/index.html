@@ -1,0 +1,2128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RL Assignment 1 — Probability Basics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --red: #E8192C;
+    --blue: #003087;
+    --yellow: #FFD700;
+    --black: #0a0a0a;
+    --white: #F5F0E8;
+    --panel: #1a1a2e;
+    --panel2: #16213e;
+    --ink: #0f0e17;
+    --accent: #FF6B35;
+    --green: #00C896;
+    --gray: #2a2a3e;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(0,48,135,0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(232,25,44,0.1) 0%, transparent 50%);
+  }
+
+  /* Comic dot pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ─────────────────────────────────────── */
+  header {
+    position: relative;
+    padding: 2rem 2rem 1.5rem;
+    border-bottom: 3px solid var(--red);
+    background: linear-gradient(135deg, var(--black) 60%, rgba(232,25,44,0.08));
+    z-index: 10;
+  }
+
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .spider-logo {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+  }
+
+  .header-text h1 {
+    font-family: 'Bangers', cursive;
+    font-size: 2.4rem;
+    letter-spacing: 2px;
+    color: var(--red);
+    line-height: 1;
+    text-shadow: 3px 3px 0 var(--blue);
+  }
+
+  .header-text p {
+    font-size: 0.78rem;
+    color: rgba(245,240,232,0.55);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .mentor-btn {
+    margin-left: auto;
+    background: transparent;
+    border: 1.5px solid rgba(245,240,232,0.2);
+    color: rgba(245,240,232,0.5);
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .mentor-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+
+  /* ── PAGES ──────────────────────────────────────── */
+  .page { display: none; max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; position: relative; z-index: 1; }
+  .page.active { display: block; }
+
+  /* ── LANDING PAGE ───────────────────────────────── */
+  .landing-hero {
+    text-align: center;
+    padding: 3rem 0 2rem;
+  }
+
+  .landing-hero .big-title {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    letter-spacing: 4px;
+    line-height: 1;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+
+  .landing-hero .big-title span { color: var(--red); }
+
+  .landing-hero .sub {
+    font-size: 0.9rem;
+    color: rgba(245,240,232,0.5);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 2.5rem;
+  }
+
+  .comic-panel {
+    background: var(--panel);
+    border: 2px solid rgba(245,240,232,0.08);
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .comic-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red), var(--blue));
+  }
+
+  .register-form { max-width: 440px; margin: 0 auto; }
+
+  .field-label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(245,240,232,0.5);
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .field-input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(245,240,232,0.12);
+    border-radius: 6px;
+    padding: 12px 16px;
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    margin-bottom: 1.25rem;
+  }
+  .field-input:focus { outline: none; border-color: var(--red); }
+  .field-input::placeholder { color: rgba(245,240,232,0.2); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--red);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-family: 'Bangers', cursive;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,25,44,0.4); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-card {
+    background: var(--panel2);
+    border: 1px solid rgba(245,240,232,0.07);
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .info-card .num {
+    font-family: 'Bangers', cursive;
+    font-size: 2.2rem;
+    color: var(--red);
+    line-height: 1;
+  }
+
+  .info-card .lbl {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(245,240,232,0.4);
+    font-family: 'DM Mono', monospace;
+    margin-top: 4px;
+  }
+
+  /* ── QUIZ PAGE ──────────────────────────────────── */
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(245,240,232,0.08);
+  }
+
+  .student-badge {
+    background: rgba(232,25,44,0.1);
+    border: 1px solid rgba(232,25,44,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--red);
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: rgba(245,240,232,0.08);
+    border-radius: 2px;
+    margin-bottom: 2.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red), var(--accent));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* Question panels */
+  .q-panel {
+    background: var(--panel);
+    border: 1.5px solid rgba(245,240,232,0.07);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+
+  .q-panel-header {
+    background: linear-gradient(90deg, rgba(232,25,44,0.12), transparent);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+  }
+
+  .q-number {
+    background: var(--red);
+    color: white;
+    font-family: 'Bangers', cursive;
+    font-size: 1rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 1px;
+  }
+
+  .q-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: rgba(245,240,232,0.9);
+    font-family: 'Syne', sans-serif;
+  }
+
+  .q-context {
+    padding: 1rem 1.5rem;
+    font-size: 0.82rem;
+    color: rgba(245,240,232,0.45);
+    font-family: 'DM Mono', monospace;
+    line-height: 1.6;
+    border-bottom: 1px solid rgba(245,240,232,0.05);
+    font-style: italic;
+  }
+
+  .q-parts { padding: 1.25rem 1.5rem; }
+
+  .part-row {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(245,240,232,0.05);
+  }
+  .part-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .part-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.6rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .part-question {
+    font-size: 0.88rem;
+    color: rgba(245,240,232,0.8);
+    margin-bottom: 0.8rem;
+    line-height: 1.6;
+  }
+
+  /* Number input with slider combo */
+  .slider-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .slider-group input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: rgba(245,240,232,0.1);
+    border-radius: 2px;
+    outline: none;
+  }
+  .slider-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--red);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(232,25,44,0.5);
+  }
+
+  .slider-display {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(245,240,232,0.12);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--green);
+    min-width: 70px;
+    text-align: center;
+  }
+
+  .num-input {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(245,240,232,0.12);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.92rem;
+    width: 160px;
+    transition: border-color 0.2s;
+  }
+  .num-input:focus { outline: none; border-color: var(--green); }
+
+  .text-input-sm {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(245,240,232,0.12);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .text-input-sm:focus { outline: none; border-color: var(--green); }
+
+  /* MCQ options */
+  .mcq-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mcq-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.02);
+    border: 1.5px solid rgba(245,240,232,0.08);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.84rem;
+    color: rgba(245,240,232,0.75);
+    line-height: 1.5;
+  }
+  .mcq-option:hover { border-color: rgba(245,240,232,0.2); background: rgba(255,255,255,0.04); }
+  .mcq-option.selected { border-color: var(--red); background: rgba(232,25,44,0.08); color: var(--white); }
+
+  .mcq-option input[type="radio"] { display: none; }
+
+  .radio-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid rgba(245,240,232,0.3);
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .mcq-option.selected .radio-dot {
+    border-color: var(--red);
+    background: var(--red);
+  }
+  .mcq-option.selected .radio-dot::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: white;
+    border-radius: 50%;
+  }
+
+  /* Matrix input */
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: auto repeat(3, 80px);
+    gap: 6px;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+  }
+
+  .matrix-cell {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(245,240,232,0.1);
+    border-radius: 4px;
+    padding: 8px;
+    text-align: center;
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    width: 80px;
+    transition: border-color 0.2s;
+  }
+  .matrix-cell:focus { outline: none; border-color: var(--green); }
+  .matrix-header { color: rgba(245,240,232,0.4); text-align: center; font-size: 0.75rem; }
+  .matrix-row-label { color: rgba(245,240,232,0.4); font-size: 0.75rem; padding-right: 8px; }
+
+  /* Submit area */
+  .submit-area {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .btn-submit {
+    padding: 16px 48px;
+    background: linear-gradient(135deg, var(--red), #c41225);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Bangers', cursive;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(232,25,44,0.3);
+  }
+  .btn-submit:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(232,25,44,0.5); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ── RESULTS PAGE ───────────────────────────────── */
+  .score-hero {
+    text-align: center;
+    padding: 2rem 0;
+  }
+
+  .score-ring {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid var(--red);
+    position: relative;
+    background: radial-gradient(circle, rgba(232,25,44,0.08), transparent);
+    box-shadow: 0 0 30px rgba(232,25,44,0.2), inset 0 0 30px rgba(232,25,44,0.05);
+  }
+
+  .score-num {
+    font-family: 'Bangers', cursive;
+    font-size: 3rem;
+    color: var(--red);
+    line-height: 1;
+  }
+
+  .score-denom {
+    font-size: 0.8rem;
+    color: rgba(245,240,232,0.4);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .score-label {
+    font-family: 'Bangers', cursive;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    margin-bottom: 0.5rem;
+  }
+
+  .breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    margin: 2rem 0;
+  }
+
+  .breakdown-card {
+    background: var(--panel);
+    border: 1.5px solid rgba(245,240,232,0.07);
+    border-radius: 8px;
+    padding: 1rem 0.5rem;
+    text-align: center;
+  }
+
+  .breakdown-card .q-name {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(245,240,232,0.4);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 0.5rem;
+  }
+
+  .breakdown-card .q-score {
+    font-family: 'Bangers', cursive;
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+
+  .breakdown-card .q-max {
+    font-size: 0.7rem;
+    color: rgba(245,240,232,0.3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .solutions-section {
+    margin-top: 2rem;
+  }
+
+  .solutions-section h2 {
+    font-family: 'Bangers', cursive;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    color: var(--yellow);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .solution-panel {
+    background: var(--panel);
+    border: 1.5px solid rgba(245,240,232,0.07);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+
+  .solution-toggle {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--white);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .solution-toggle .chevron { transition: transform 0.2s; font-size: 1.1rem; }
+  .solution-toggle.open .chevron { transform: rotate(180deg); }
+
+  .solution-body {
+    display: none;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid rgba(245,240,232,0.06);
+  }
+  .solution-body.open { display: block; }
+
+  .sol-part {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(245,240,232,0.05);
+  }
+  .sol-part:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .sol-part-label {
+    font-size: 0.72rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sol-answer {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: rgba(245,240,232,0.8);
+    line-height: 1.7;
+  }
+
+  .correct-badge { color: var(--green); font-size: 0.7rem; }
+  .wrong-badge { color: var(--red); font-size: 0.7rem; }
+
+  .part-marks-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+  }
+  .your-ans-label { color: rgba(245,240,232,0.45); }
+  .your-ans-value {
+    background: rgba(245,240,232,0.07);
+    border: 1px solid rgba(245,240,232,0.15);
+    border-radius: 4px;
+    padding: 1px 7px;
+    color: rgba(245,240,232,0.85);
+    font-style: italic;
+    max-width: 320px;
+    word-break: break-all;
+  }
+  .your-ans-value.correct-ans   { border-color: var(--green);  color: var(--green); }
+  .your-ans-value.wrong-ans     { border-color: var(--red);    color: var(--red); }
+  .your-ans-value.partial-ans   { border-color: var(--yellow); color: var(--yellow); }
+  .your-ans-value.unattempted-ans { border-color: rgba(245,240,232,0.2); color: rgba(245,240,232,0.3); font-style: normal; letter-spacing: 0.05em; }
+  .part-score-pill.skip { color: rgba(245,240,232,0.35); border: 1px solid rgba(245,240,232,0.15); }
+  .multi-ans-cell .cell-val.uv { border-color: rgba(245,240,232,0.15); color: rgba(245,240,232,0.25); }
+  .part-score-pill {
+    margin-left: auto;
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    background: rgba(245,240,232,0.07);
+    border-radius: 20px;
+    padding: 2px 10px;
+    white-space: nowrap;
+  }
+  .part-score-pill.full  { color: var(--green); border: 1px solid var(--green); }
+  .part-score-pill.part  { color: var(--yellow); border: 1px solid var(--yellow); }
+  .part-score-pill.zero  { color: var(--red);   border: 1px solid var(--red); }
+  .multi-ans-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.3rem;
+  }
+  .multi-ans-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+  }
+  .multi-ans-cell .cell-label { color: rgba(245,240,232,0.4); font-size: 0.68rem; }
+  .multi-ans-cell .cell-val {
+    background: rgba(245,240,232,0.07);
+    border: 1px solid rgba(245,240,232,0.15);
+    border-radius: 4px;
+    padding: 2px 7px;
+    min-width: 56px;
+    text-align: center;
+  }
+  .multi-ans-cell .cell-val.cv { border-color: var(--green); color: var(--green); }
+  .multi-ans-cell .cell-val.wv { border-color: var(--red);   color: var(--red); }
+
+  /* ── MENTOR PAGE ────────────────────────────────── */
+  .mentor-login { max-width: 360px; margin: 3rem auto; }
+
+  .leaderboard {
+    background: var(--panel);
+    border: 1.5px solid rgba(245,240,232,0.07);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .lb-header {
+    background: linear-gradient(90deg, rgba(255,215,0,0.08), transparent);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+  }
+
+  .lb-header h2 {
+    font-family: 'Bangers', cursive;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    color: var(--yellow);
+  }
+
+  .lb-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 120px 80px 120px;
+    gap: 1rem;
+    padding: 0.9rem 1.5rem;
+    border-bottom: 1px solid rgba(245,240,232,0.04);
+    align-items: center;
+    font-size: 0.85rem;
+    transition: background 0.15s;
+  }
+  .lb-row:hover { background: rgba(255,255,255,0.02); }
+  .lb-row:last-child { border-bottom: none; }
+
+  .lb-row.header-row {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(245,240,232,0.35);
+    font-family: 'DM Mono', monospace;
+    background: rgba(0,0,0,0.2);
+  }
+
+  .rank-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bangers', cursive;
+    font-size: 0.85rem;
+    color: rgba(245,240,232,0.6);
+  }
+  .rank-badge.gold { background: rgba(255,215,0,0.2); color: var(--yellow); }
+  .rank-badge.silver { background: rgba(200,200,200,0.15); color: #C0C0C0; }
+  .rank-badge.bronze { background: rgba(205,127,50,0.15); color: #CD7F32; }
+
+  .mini-bar {
+    height: 4px;
+    background: rgba(245,240,232,0.08);
+    border-radius: 2px;
+    margin-top: 4px;
+  }
+  .mini-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--red), var(--accent));
+  }
+
+  /* Student detail modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    display: none;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: var(--panel2);
+    border: 1.5px solid rgba(245,240,232,0.1);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 560px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: rgba(245,240,232,0.4);
+    cursor: pointer;
+    font-size: 1.2rem;
+  }
+
+  /* ── MISC ───────────────────────────────────────── */
+  .alert {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.83rem;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 1rem;
+  }
+  .alert-error { background: rgba(232,25,44,0.1); border: 1px solid rgba(232,25,44,0.3); color: #ff8fa0; }
+  .alert-success { background: rgba(0,200,150,0.1); border: 1px solid rgba(0,200,150,0.3); color: var(--green); }
+
+  .hidden { display: none !important; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: rgba(255,215,0,0.1);
+    color: var(--yellow);
+    border: 1px solid rgba(255,215,0,0.2);
+    margin-bottom: 0.5rem;
+  }
+
+  .web-line {
+    position: fixed;
+    top: 0;
+    right: 60px;
+    width: 1px;
+    height: 200px;
+    background: linear-gradient(180deg, var(--red), transparent);
+    opacity: 0.2;
+  }
+
+  @media (max-width: 600px) {
+    .breakdown-grid { grid-template-columns: repeat(3, 1fr); }
+    .lb-row { grid-template-columns: 30px 1fr 70px 60px; }
+    .lb-row .lb-date { display: none; }
+    .info-grid { grid-template-columns: repeat(2, 1fr); }
+    .matrix-grid { grid-template-columns: auto repeat(3, 60px); }
+    .matrix-cell { width: 60px; }
+  }
+
+  /* Loading spinner */
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(245,240,232,0.1);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 2rem auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="web-line"></div>
+
+<header>
+  <div class="header-inner">
+    <svg class="spider-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="48" fill="#E8192C" stroke="#0a0a0a" stroke-width="2"/>
+      <ellipse cx="50" cy="50" rx="18" ry="24" fill="#0a0a0a"/>
+      <circle cx="50" cy="44" r="6" fill="#0a0a0a"/>
+      <line x1="50" y1="26" x2="50" y2="10" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="50" y1="74" x2="50" y2="90" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="32" y1="50" x2="10" y2="44" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="68" y1="50" x2="90" y2="44" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="36" y1="36" x2="18" y2="22" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="64" y1="36" x2="82" y2="22" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="36" y1="64" x2="18" y2="78" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="64" y1="64" x2="82" y2="78" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <div class="header-text">
+      <h1>Reinforcements Are In</h1>
+      <p>Assignment 1 · Probability Basics · ACA</p>
+    </div>
+    <button class="mentor-btn" onclick="showPage('mentor-login')">⚙ Mentor</button>
+  </div>
+</header>
+
+<!-- ═══════════ LANDING ═══════════ -->
+<div id="page-landing" class="page active">
+  <div class="landing-hero">
+    <div class="big-title" style="font-family:'Bangers',cursive;font-size:clamp(2.5rem,7vw,5rem);letter-spacing:3px;margin-bottom:0.5rem;">
+      ASSIGNMENT 1
+    </div>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="num">5</div>
+      <div class="lbl">Questions</div>
+    </div>
+    <div class="info-card">
+      <div class="num">25</div>
+      <div class="lbl">Total Marks</div>
+    </div>
+    <div class="info-card">
+      <div class="num">1×</div>
+      <div class="lbl">Attempt Only</div>
+    </div>
+  </div>
+
+  <div class="comic-panel">
+    <div class="register-form">
+      <p style="text-align:center;font-size:0.85rem;color:rgba(245,240,232,0.5);margin-bottom:1.5rem;font-family:'DM Mono',monospace;">
+        Enter your credentials to begin. You get <strong style="color:var(--yellow)">one attempt</strong> — make it count.
+      </p>
+      <div id="register-alert"></div>
+      <label class="field-label">Full Name</label>
+      <input class="field-input" id="reg-name" placeholder="e.g. Peter Parker" type="text" autocomplete="name"/>
+      <label class="field-label">Roll Number</label>
+      <input class="field-input" id="reg-roll" placeholder="e.g. 2401CS01" type="text" autocomplete="off"/>
+      <button class="btn-primary" onclick="registerStudent()">🕷 Begin Quiz</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ QUIZ ═══════════ -->
+<div id="page-quiz" class="page">
+  <div class="quiz-header">
+    <div>
+      <div style="font-family:'Bangers',cursive;font-size:1.4rem;letter-spacing:2px;">PROBABILITY BASICS</div>
+      <div style="font-size:0.75rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;">Answer all 5 questions · Submit once</div>
+    </div>
+    <div class="student-badge" id="quiz-student-badge">—</div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+
+  <!-- ── Q1 ── -->
+  <div class="q-panel fade-in">
+    <div class="q-panel-header">
+      <div class="q-number">Q1</div>
+      <div class="q-title">Continuous Distributions & Geometric Distribution</div>
+    </div>
+    <div class="q-context">Peter sets his automatic camera trap on a skyscraper. The photo capture time t (hours past noon) follows f(t) = ce⁻ᵗ for t ≥ 0.</div>
+    <div class="q-parts">
+
+      <div class="part-row">
+        <div class="tag">Part A · 1 mark</div>
+        <div class="part-question">Find the constant <em>c</em> that makes f(t) a valid PDF.</div>
+        <div class="slider-group">
+          <input type="range" id="q1a-slider" min="0" max="3" step="0.01" value="0" oninput="syncSlider('q1a')"/>
+          <div class="slider-display" id="q1a-display">0.000</div>
+        </div>
+        <input type="hidden" id="q1a-val" value="0"/>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part B · 1 mark</div>
+        <div class="part-question">What is P(t ≤ 2) — probability the camera snaps within the first 2 hours?</div>
+        <div class="slider-group">
+          <input type="range" id="q1b-slider" min="0" max="1" step="0.001" value="0" oninput="syncSlider('q1b')"/>
+          <div class="slider-display" id="q1b-display">0.000</div>
+        </div>
+        <input type="hidden" id="q1b-val" value="0"/>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part C · 1 mark</div>
+        <div class="part-question">Peter snaps manually — each swing has p = 0.5 of success, independently. X = swings until first good photo. What distribution is this, and what is P(X = 3)?</div>
+        <div style="margin-bottom:0.75rem;">
+          <div class="mcq-options" id="q1c-dist">
+            <label class="mcq-option" onclick="selectMCQ('q1c-dist', this, 'binom')">
+              <input type="radio" name="q1c-dist"/><div class="radio-dot"></div>Binomial Distribution
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q1c-dist', this, 'poisson')">
+              <input type="radio" name="q1c-dist"/><div class="radio-dot"></div>Poisson Distribution
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q1c-dist', this, 'geo')">
+              <input type="radio" name="q1c-dist"/><div class="radio-dot"></div>Geometric Distribution
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q1c-dist', this, 'uniform')">
+              <input type="radio" name="q1c-dist"/><div class="radio-dot"></div>Uniform Distribution
+            </label>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.75rem;">
+          <span style="font-size:0.8rem;color:rgba(245,240,232,0.5);font-family:'DM Mono',monospace;">P(X=3) =</span>
+          <input class="num-input" id="q1c-prob" type="number" step="0.001" placeholder="0.000" min="0" max="1"/>
+        </div>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part D · 1 mark</div>
+        <div class="part-question">Calculate E[X] — expected number of swings needed.</div>
+        <div class="slider-group">
+          <input type="range" id="q1d-slider" min="0" max="10" step="0.1" value="0" oninput="syncSlider('q1d')"/>
+          <div class="slider-display" id="q1d-display">0.000</div>
+        </div>
+        <input type="hidden" id="q1d-val" value="0"/>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part E · 1 mark</div>
+        <div class="part-question">Calculate Var(X) — variance of the number of swings.</div>
+        <div class="slider-group">
+          <input type="range" id="q1e-slider" min="0" max="10" step="0.1" value="0" oninput="syncSlider('q1e')"/>
+          <div class="slider-display" id="q1e-display">0.000</div>
+        </div>
+        <input type="hidden" id="q1e-val" value="0"/>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Q2 ── -->
+  <div class="q-panel fade-in">
+    <div class="q-panel-header">
+      <div class="q-number">Q2</div>
+      <div class="q-title">Hypergeometric & Binomial Distributions</div>
+    </div>
+    <div class="q-context">Storage rack: 4 unstable red cells, 6 stable blue cells. Henchman grabs 3 at random without replacement.</div>
+    <div class="q-parts">
+
+      <div class="part-row">
+        <div class="tag">Part A · 1 mark</div>
+        <div class="part-question">Y = number of red cells grabbed. Enter P(Y=0), P(Y=1), P(Y=2), P(Y=3) as decimals (to 4 decimal places).</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;margin-top:0.5rem;">
+          <div>
+            <div style="font-size:0.72rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;margin-bottom:4px;">P(Y=0)</div>
+            <input class="num-input" id="q2a-p0" type="number" step="0.0001" placeholder="0.0000" style="width:100%;"/>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;margin-bottom:4px;">P(Y=1)</div>
+            <input class="num-input" id="q2a-p1" type="number" step="0.0001" placeholder="0.0000" style="width:100%;"/>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;margin-bottom:4px;">P(Y=2)</div>
+            <input class="num-input" id="q2a-p2" type="number" step="0.0001" placeholder="0.0000" style="width:100%;"/>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;margin-bottom:4px;">P(Y=3)</div>
+            <input class="num-input" id="q2a-p3" type="number" step="0.0001" placeholder="0.0000" style="width:100%;"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part B · 1 mark</div>
+        <div class="part-question">Calculate E[Y].</div>
+        <div class="slider-group">
+          <input type="range" id="q2b-slider" min="0" max="4" step="0.01" value="0" oninput="syncSlider('q2b')"/>
+          <div class="slider-display" id="q2b-display">0.000</div>
+        </div>
+        <input type="hidden" id="q2b-val" value="0"/>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part C · 1 mark</div>
+        <div class="part-question">Giant vault: 100 red, 150 blue. Henchman samples 10 with replacement. W = red cells. Identify the distribution and its parameters.</div>
+        <div class="mcq-options" id="q2c-dist">
+            <label class="mcq-option" onclick="selectMCQ('q2c-dist', this, 'hyper')">
+              <input type="radio" name="q2c-dist"/><div class="radio-dot"></div>Hypergeometric Distribution (N=250, K=100, n=10)
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q2c-dist', this, 'binom')">
+              <input type="radio" name="q2c-dist"/><div class="radio-dot"></div>Binomial Distribution (n=10, p=0.4)
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q2c-dist', this, 'poisson')">
+              <input type="radio" name="q2c-dist"/><div class="radio-dot"></div>Poisson Distribution (λ=4)
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q2c-dist', this, 'geo')">
+              <input type="radio" name="q2c-dist"/><div class="radio-dot"></div>Geometric Distribution (p=0.4)
+            </label>
+          </div>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part D · 1 mark</div>
+        <div class="part-question">Using linearity of expectation, find E[W] and Var(W).</div>
+        <div style="display:flex;gap:1rem;">
+          <div style="flex:1;">
+            <div style="font-size:0.72rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;margin-bottom:4px;">E[W] =</div>
+            <input class="num-input" id="q2d-ew" type="number" step="0.01" placeholder="0.00" style="width:100%;"/>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:0.72rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;margin-bottom:4px;">Var(W) =</div>
+            <input class="num-input" id="q2d-var" type="number" step="0.01" placeholder="0.00" style="width:100%;"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part E · 1 mark</div>
+        <div class="part-question">N henchmen lined up. Spider-Man randomly rearranges them. What is the probability Rhino and Shocker end up adjacent? (Express as formula or fraction in terms of N)</div>
+        <input class="text-input-sm" id="q2e" placeholder="Express as a fraction in terms of N"/>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Q3 ── -->
+  <div class="q-panel fade-in">
+    <div class="q-panel-header">
+      <div class="q-number">Q3</div>
+      <div class="q-title">Concentration Inequalities</div>
+    </div>
+    <div class="q-context">Z = attacks Spider-Man faces per hour. E[Z] = 10, Var(Z) = 4. Electro fires 100 independent lightning bolts, P(dodge) = 0.6.</div>
+    <div class="q-parts">
+
+      <div class="part-row">
+        <div class="tag">Part A · 1 mark</div>
+        <div class="part-question">Using Markov's Inequality, find an upper bound on P(Z ≥ 40).</div>
+        <div class="slider-group">
+          <input type="range" id="q3a-slider" min="0" max="1" step="0.01" value="0" oninput="syncSlider('q3a')"/>
+          <div class="slider-display" id="q3a-display">0.000</div>
+        </div>
+        <input type="hidden" id="q3a-val" value="0"/>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part B · 1 mark</div>
+        <div class="part-question">Using Chebyshev's Inequality, find an upper bound on P(Z ≥ 20).</div>
+        <div class="slider-group">
+          <input type="range" id="q3b-slider" min="0" max="0.5" step="0.001" value="0" oninput="syncSlider('q3b')"/>
+          <div class="slider-display" id="q3b-display">0.000</div>
+        </div>
+        <input type="hidden" id="q3b-val" value="0"/>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part C · 1 mark</div>
+        <div class="part-question">In the Chernoff bound derivation, at which step is independence of the bolts <em>mathematically required</em>?</div>
+        <div class="mcq-options" id="q3c-opts">
+            <label class="mcq-option" onclick="selectMCQ('q3c-opts', this, 'markov')">
+              <input type="radio" name="q3c"/><div class="radio-dot"></div>When applying Markov's inequality to e^(tX)
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q3c-opts', this, 'union')">
+              <input type="radio" name="q3c"/><div class="radio-dot"></div>When taking the union bound over individual events
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q3c-opts', this, 'mgf_product')">
+              <input type="radio" name="q3c"/><div class="radio-dot"></div>When factoring E[e^(tX)] into a product of individual E[e^(tXᵢ)] terms
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q3c-opts', this, 'optimize')">
+              <input type="radio" name="q3c"/><div class="radio-dot"></div>When optimizing over the parameter t
+            </label>
+          </div>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part D · 1 mark</div>
+        <div class="part-question">For X ≥ 80 dodges where μ = 60, what value of δ do you set to apply the Chernoff bound?</div>
+        <div class="slider-group">
+          <input type="range" id="q3d-slider" min="0" max="2" step="0.01" value="0" oninput="syncSlider('q3d')"/>
+          <div class="slider-display" id="q3d-display">0.000</div>
+        </div>
+        <input type="hidden" id="q3d-val" value="0"/>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part E · 1 mark</div>
+        <div class="part-question">How does Hoeffding's Inequality differ structurally from the Chernoff bound?</div>
+        <div class="mcq-options" id="q3e-opts">
+            <label class="mcq-option" onclick="selectMCQ('q3e-opts', this, 'no_indep')">
+              <input type="radio" name="q3e"/><div class="radio-dot"></div>Hoeffding does not require independence; Chernoff does
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q3e-opts', this, 'bounded_intervals')">
+              <input type="radio" name="q3e"/><div class="radio-dot"></div>Hoeffding only requires variables be bounded in [aᵢ, bᵢ]; Chernoff requires binary/Bernoulli structure with MGF bounds
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q3e-opts', this, 'tighter')">
+              <input type="radio" name="q3e"/><div class="radio-dot"></div>Hoeffding always gives a tighter bound than Chernoff
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q3e-opts', this, 'additive')">
+              <input type="radio" name="q3e"/><div class="radio-dot"></div>Hoeffding uses additive error; Chernoff uses absolute deviation from zero
+            </label>
+          </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Q4 ── -->
+  <div class="q-panel fade-in">
+    <div class="q-panel-header">
+      <div class="q-number">Q4</div>
+      <div class="q-title">Markov Chains</div>
+    </div>
+    <div class="q-context">Spider-Man patrols: Midtown (M), Downtown (D), Queens (Q). From M → D or Q each with 0.5. From D → M always. From Q → M always.</div>
+    <div class="q-parts">
+
+      <div class="part-row">
+        <div class="tag">Part A · 1 mark</div>
+        <div class="part-question">Enter the state transition matrix P (rows = from, cols = to, order: M D Q).</div>
+        <div class="matrix-grid" style="margin-top:0.75rem;">
+          <div></div>
+          <div class="matrix-header">→ M</div>
+          <div class="matrix-header">→ D</div>
+          <div class="matrix-header">→ Q</div>
+          <div class="matrix-row-label">M →</div>
+          <input class="matrix-cell" id="q4-mm" type="number" step="0.1" min="0" max="1" placeholder="0"/>
+          <input class="matrix-cell" id="q4-md" type="number" step="0.1" min="0" max="1" placeholder="0"/>
+          <input class="matrix-cell" id="q4-mq" type="number" step="0.1" min="0" max="1" placeholder="0"/>
+          <div class="matrix-row-label">D →</div>
+          <input class="matrix-cell" id="q4-dm" type="number" step="0.1" min="0" max="1" placeholder="0"/>
+          <input class="matrix-cell" id="q4-dd" type="number" step="0.1" min="0" max="1" placeholder="0"/>
+          <input class="matrix-cell" id="q4-dq" type="number" step="0.1" min="0" max="1" placeholder="0"/>
+          <div class="matrix-row-label">Q →</div>
+          <input class="matrix-cell" id="q4-qm" type="number" step="0.1" min="0" max="1" placeholder="0"/>
+          <input class="matrix-cell" id="q4-qd" type="number" step="0.1" min="0" max="1" placeholder="0"/>
+          <input class="matrix-cell" id="q4-qq" type="number" step="0.1" min="0" max="1" placeholder="0"/>
+        </div>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part B · 1 mark</div>
+        <div class="part-question">Does this system satisfy the Markov Property? What does it mean?</div>
+        <div class="mcq-options" id="q4b-opts">
+            <label class="mcq-option" onclick="selectMCQ('q4b-opts', this, 'stationary')">
+              <input type="radio" name="q4b"/><div class="radio-dot"></div>Yes, but only because all transition probabilities are stationary over time
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q4b-opts', this, 'no_markov')">
+              <input type="radio" name="q4b"/><div class="radio-dot"></div>No — the transition depends on how Spider-Man arrived at the current location
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q4b-opts', this, 'current_only')">
+              <input type="radio" name="q4b"/><div class="radio-dot"></div>Yes — the future state depends only on the current state, not on the history of past states
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q4b-opts', this, 'deterministic')">
+              <input type="radio" name="q4b"/><div class="radio-dot"></div>No — Markov property only applies to deterministic systems
+            </label>
+          </div>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part C · 1 mark</div>
+        <div class="part-question">Peter starts in Queens at step 0. What is the probability distribution after exactly 2 steps?</div>
+        <div style="display:flex;gap:1rem;margin-top:0.5rem;">
+          <div style="flex:1;"><div style="font-size:0.72rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;margin-bottom:4px;">P(Midtown)</div><input class="num-input" id="q4c-m" type="number" step="0.1" placeholder="0.0" style="width:100%;"/></div>
+          <div style="flex:1;"><div style="font-size:0.72rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;margin-bottom:4px;">P(Downtown)</div><input class="num-input" id="q4c-d" type="number" step="0.1" placeholder="0.0" style="width:100%;"/></div>
+          <div style="flex:1;"><div style="font-size:0.72rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;margin-bottom:4px;">P(Queens)</div><input class="num-input" id="q4c-q" type="number" step="0.1" placeholder="0.0" style="width:100%;"/></div>
+        </div>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part D · 1 mark</div>
+        <div class="part-question">Are any of the three neighborhoods transient, or are all recurrent?</div>
+        <div class="mcq-options" id="q4d-opts">
+            <label class="mcq-option" onclick="selectMCQ('q4d-opts', this, 'dq_transient')">
+              <input type="radio" name="q4d"/><div class="radio-dot"></div>D and Q are transient; only Midtown is recurrent
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q4d-opts', this, 'm_transient')">
+              <input type="radio" name="q4d"/><div class="radio-dot"></div>Midtown is transient; D and Q are recurrent
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q4d-opts', this, 'all_transient')">
+              <input type="radio" name="q4d"/><div class="radio-dot"></div>All three are transient since the walk never settles
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q4d-opts', this, 'all_recurrent')">
+              <input type="radio" name="q4d"/><div class="radio-dot"></div>All three (M, D, Q) are recurrent — each can always be revisited
+            </label>
+          </div>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part E · 1 mark</div>
+        <div class="part-question">Why is the Markov Property a foundational assumption for computing value functions in Reinforcement Learning?</div>
+        <div class="mcq-options" id="q4e-opts">
+            <label class="mcq-option" onclick="selectMCQ('q4e-opts', this, 'convergence')">
+              <input type="radio" name="q4e"/><div class="radio-dot"></div>It guarantees Q-learning always converges to the optimal policy
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q4e-opts', this, 'tractable_value')">
+              <input type="radio" name="q4e"/><div class="radio-dot"></div>It ensures value functions only need the current state and action — without it, tracking full history makes value updates computationally intractable
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q4e-opts', this, 'reward')">
+              <input type="radio" name="q4e"/><div class="radio-dot"></div>It ensures the reward signal is always positive and bounded
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q4e-opts', this, 'policy')">
+              <input type="radio" name="q4e"/><div class="radio-dot"></div>It means the optimal policy is always deterministic
+            </label>
+          </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Q5 ── -->
+  <div class="q-panel fade-in">
+    <div class="q-panel-header">
+      <div class="q-number">Q5</div>
+      <div class="q-title">Random Walks & Martingales</div>
+    </div>
+    <div class="q-context">Peter starts with k dollars. Each round: +1 (heads, p=0.5) or −1 (tails). Sₙ = capital after n rounds, S₀ = k.</div>
+    <div class="q-parts">
+
+      <div class="part-row">
+        <div class="tag">Part A · 1 mark</div>
+        <div class="part-question">What is E[Sₙ₊₁ | Sₙ, Sₙ₋₁, ..., S₀]?</div>
+        <div class="mcq-options" id="q5a-opts">
+            <label class="mcq-option" onclick="selectMCQ('q5a-opts', this, 'sn_plus_1')">
+              <input type="radio" name="q5a"/><div class="radio-dot"></div>Sₙ + 1 (always increases by 1)
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q5a-opts', this, 'zero')">
+              <input type="radio" name="q5a"/><div class="radio-dot"></div>0 (always converges to 0)
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q5a-opts', this, 'equals_sn')">
+              <input type="radio" name="q5a"/><div class="radio-dot"></div>Sₙ (equals the current capital)
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q5a-opts', this, 'k')">
+              <input type="radio" name="q5a"/><div class="radio-dot"></div>k (always returns to initial capital)
+            </label>
+          </div>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part B · 1 mark</div>
+        <div class="part-question">Since E[Sₙ₊₁ | Sₙ, ..., S₀] = Sₙ, what does this martingale property imply about the game?</div>
+        <div class="mcq-options" id="q5b-opts">
+            <label class="mcq-option" onclick="selectMCQ('q5b-opts', this, 'win_long')">
+              <input type="radio" name="q5b"/><div class="radio-dot"></div>Peter will eventually win if he plays long enough
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q5b-opts', this, 'bounded')">
+              <input type="radio" name="q5b"/><div class="radio-dot"></div>Peter's capital is bounded and cannot exceed k
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q5b-opts', this, 'variance_zero')">
+              <input type="radio" name="q5b"/><div class="radio-dot"></div>The variance of Sₙ is zero, so the walk does not move
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q5b-opts', this, 'fair_game')">
+              <input type="radio" name="q5b"/><div class="radio-dot"></div>The game is perfectly fair — expected future wealth always equals current wealth regardless of history
+            </label>
+          </div>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part C · 1 mark</div>
+        <div class="part-question">Using linearity of expectation, what is E[Sₙ] after n steps? (Enter 'k' or a numeric value if k=5)</div>
+        <input class="text-input-sm" id="q5c" placeholder="Your answer (number or formula)" style="max-width:200px;margin-top:0.5rem;"/>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part D · 1 mark</div>
+        <div class="part-question">Peter starts at k = 5 on a rooftop. Wins if he reaches 10; falls if he reaches 0. Using the martingale fairness argument, what is the probability he safely reaches 10?</div>
+        <div class="slider-group">
+          <input type="range" id="q5d-slider" min="0" max="1" step="0.01" value="0" oninput="syncSlider('q5d')"/>
+          <div class="slider-display" id="q5d-display">0.000</div>
+        </div>
+        <input type="hidden" id="q5d-val" value="0"/>
+      </div>
+
+      <div class="part-row">
+        <div class="tag">Part E · 1 mark</div>
+        <div class="part-question">If the thug rigs the coin so p < 0.5, does Sₙ become a sub-martingale or super-martingale?</div>
+        <div class="mcq-options" id="q5e-opts">
+            <label class="mcq-option" onclick="selectMCQ('q5e-opts', this, 'neither')">
+              <input type="radio" name="q5e"/><div class="radio-dot"></div>Neither — martingale theory only applies to fair games
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q5e-opts', this, 'super_martingale')">
+              <input type="radio" name="q5e"/><div class="radio-dot"></div>Super-martingale — E[Sₙ₊₁ | Sₙ] ≤ Sₙ; Peter's wealth is expected to decrease over time
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q5e-opts', this, 'still_martingale')">
+              <input type="radio" name="q5e"/><div class="radio-dot"></div>Still a martingale — the property doesn't depend on the coin's bias
+            </label>
+            <label class="mcq-option" onclick="selectMCQ('q5e-opts', this, 'sub_martingale')">
+              <input type="radio" name="q5e"/><div class="radio-dot"></div>Sub-martingale — E[Sₙ₊₁ | Sₙ] ≥ Sₙ; Peter's wealth is expected to increase
+            </label>
+          </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="submit-area">
+    <div id="submit-alert"></div>
+    <button class="btn-submit" onclick="submitQuiz()" id="submit-btn">🕷 SUBMIT QUIZ</button>
+    <p style="margin-top:1rem;font-size:0.75rem;color:rgba(245,240,232,0.3);font-family:'DM Mono',monospace;">You cannot resubmit once confirmed.</p>
+  </div>
+</div>
+
+<!-- ═══════════ RESULTS ═══════════ -->
+<div id="page-results" class="page">
+  <div class="score-hero">
+    <div class="score-ring">
+      <div class="score-num" id="res-score">—</div>
+      <div class="score-denom" id="res-denom">/ 25</div>
+    </div>
+    <div class="score-label" id="res-grade-label">—</div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.8rem;color:rgba(245,240,232,0.4);" id="res-student-info">—</div>
+  </div>
+
+  <div class="breakdown-grid" id="res-breakdown"></div>
+
+  <div class="solutions-section">
+    <h2>📖 SOLUTIONS</h2>
+
+    <div class="solution-panel">
+      <button class="solution-toggle" onclick="toggleSol(this)">
+        <span>Question 1 — Continuous Distributions & Geometric</span>
+        <span class="chevron">▼</span>
+      </button>
+      <div class="solution-body">
+        <div class="sol-part">
+          <div class="sol-part-label">Part A <span id="sol1a-badge"></span></div>
+          <div class="sol-answer">∫₀^∞ ce⁻ᵗ dt = 1 → c[−e⁻ᵗ]₀^∞ = 1 → c(0−(−1)) = 1 → <strong>c = 1</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part B <span id="sol1b-badge"></span></div>
+          <div class="sol-answer">F(t) = 1 − e⁻ᵗ. P(t ≤ 2) = F(2) = 1 − e⁻² ≈ <strong>0.8647</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part C <span id="sol1c-badge"></span></div>
+          <div class="sol-answer"><strong>Geometric Distribution.</strong> PMF: P(X=x) = (1−p)^(x−1) · p. For p=0.5, x=3: P(X=3) = (0.5)² × 0.5 = <strong>0.125</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part D <span id="sol1d-badge"></span></div>
+          <div class="sol-answer">E[X] = 1/p = 1/0.5 = <strong>2 swings</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part E <span id="sol1e-badge"></span></div>
+          <div class="sol-answer">Var(X) = (1−p)/p² = 0.5/0.25 = <strong>2</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-panel">
+      <button class="solution-toggle" onclick="toggleSol(this)">
+        <span>Question 2 — Hypergeometric & Binomial</span>
+        <span class="chevron">▼</span>
+      </button>
+      <div class="solution-body">
+        <div class="sol-part">
+          <div class="sol-part-label">Part A <span id="sol2a-badge"></span></div>
+          <div class="sol-answer">Hypergeometric distribution. C(10,3) = 120.<br>P(Y=0) = 20/120 ≈ <strong>0.1667</strong>, P(Y=1) = 60/120 = <strong>0.5000</strong>, P(Y=2) = 36/120 = <strong>0.3000</strong>, P(Y=3) = 4/120 ≈ <strong>0.0333</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part B <span id="sol2b-badge"></span></div>
+          <div class="sol-answer">E[Y] = 0(20/120) + 1(60/120) + 2(36/120) + 3(4/120) = 144/120 = <strong>1.2</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part C <span id="sol2c-badge"></span></div>
+          <div class="sol-answer"><strong>Binomial(n=10, p=0.4)</strong>. With replacement → independent trials. p = 100/250 = 0.4. PMF: P(W=w) = C(10,w)(0.4)^w(0.6)^(10−w)</div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part D <span id="sol2d-badge"></span></div>
+          <div class="sol-answer">E[W] = np = 10 × 0.4 = <strong>4</strong>. Var(W) = np(1−p) = 10 × 0.4 × 0.6 = <strong>2.4</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part E <span id="sol2e-badge"></span></div>
+          <div class="sol-answer">Treat R & S as one block: (N−1)! arrangements × 2 internal arrangements / N! total = <strong>2/N</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-panel">
+      <button class="solution-toggle" onclick="toggleSol(this)">
+        <span>Question 3 — Concentration Inequalities</span>
+        <span class="chevron">▼</span>
+      </button>
+      <div class="solution-body">
+        <div class="sol-part">
+          <div class="sol-part-label">Part A <span id="sol3a-badge"></span></div>
+          <div class="sol-answer">Markov: P(Z ≥ 40) ≤ E[Z]/40 = 10/40 = <strong>0.25</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part B <span id="sol3b-badge"></span></div>
+          <div class="sol-answer">P(Z ≥ 20) ≤ P(|Z−10| ≥ 10) ≤ Var(Z)/10² = 4/100 = <strong>0.04</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part C <span id="sol3c-badge"></span></div>
+          <div class="sol-answer">Independence is used when <strong>factoring E[e^(tΣXᵢ)] = ΠE[e^(tXᵢ)]</strong>. Without independence, the joint expectation cannot be decomposed into a product.</div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part D <span id="sol3d-badge"></span></div>
+          <div class="sol-answer">(1+δ)·60 = 80 → 1+δ = 4/3 → <strong>δ = 1/3 ≈ 0.333</strong>. Bound: P(X ≥ 80) ≤ (e^(1/3) / (4/3)^(4/3))^60</div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part E <span id="sol3e-badge"></span></div>
+          <div class="sol-answer">Hoeffding requires only that variables are <strong>bounded in closed intervals [aᵢ, bᵢ]</strong>. Chernoff uses multiplicative deviation δ and requires binary/Bernoulli structure with MGF bounds — more restrictive.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-panel">
+      <button class="solution-toggle" onclick="toggleSol(this)">
+        <span>Question 4 — Markov Chains</span>
+        <span class="chevron">▼</span>
+      </button>
+      <div class="solution-body">
+        <div class="sol-part">
+          <div class="sol-part-label">Part A <span id="sol4a-badge"></span></div>
+          <div class="sol-answer">P = [[0, 0.5, 0.5], [1, 0, 0], [1, 0, 0]] (rows: M, D, Q; cols: M, D, Q)</div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part B <span id="sol4b-badge"></span></div>
+          <div class="sol-answer"><strong>Yes — Markov Property holds.</strong> Transition probabilities depend solely on the current neighborhood, not on how Spider-Man got there. "The future depends only on the present."</div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part C <span id="sol4c-badge"></span></div>
+          <div class="sol-answer">v₀ = (0,0,1) [Queens]. Step 1: v₁ = (1,0,0) [Midtown]. Step 2: v₂ = (0, 0.5, 0.5). <strong>P(M)=0, P(D)=0.5, P(Q)=0.5</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part D <span id="sol4d-badge"></span></div>
+          <div class="sol-answer"><strong>All three are recurrent.</strong> From D or Q, the chain goes to M with probability 1. From M, it must go to D or Q and then back. Every state communicates and returns infinitely.</div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part E <span id="sol4e-badge"></span></div>
+          <div class="sol-answer">Without the Markov property, the value function V(s) would need to track the entire history of states. This makes the state space exponentially large and <strong>computationally intractable</strong>. The Markov property lets us write Bellman equations over a compact state space.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-panel">
+      <button class="solution-toggle" onclick="toggleSol(this)">
+        <span>Question 5 — Random Walks & Martingales</span>
+        <span class="chevron">▼</span>
+      </button>
+      <div class="solution-body">
+        <div class="sol-part">
+          <div class="sol-part-label">Part A <span id="sol5a-badge"></span></div>
+          <div class="sol-answer">E[Sₙ₊₁ | Sₙ,...,S₀] = Sₙ + E[Xₙ₊₁] = Sₙ + (0.5×1 + 0.5×(−1)) = <strong>Sₙ</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part B <span id="sol5b-badge"></span></div>
+          <div class="sol-answer">Since E[Sₙ₊₁ | Sₙ,...,S₀] = Sₙ, {Sₙ} is a martingale. This means the <strong>game is perfectly fair</strong> — at any point, your expected future fortune equals your current wealth, no matter the streak.</div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part C <span id="sol5c-badge"></span></div>
+          <div class="sol-answer">E[Sₙ] = E[S₀] + Σ E[Xᵢ] = k + n×0 = <strong>k</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part D <span id="sol5d-badge"></span></div>
+          <div class="sol-answer">E[S_T] = 10·Pwin + 0·(1−Pwin) = S₀ = 5. So 10·Pwin = 5 → <strong>Pwin = 0.5</strong></div>
+        </div>
+        <div class="sol-part">
+          <div class="sol-part-label">Part E <span id="sol5e-badge"></span></div>
+          <div class="sol-answer">p < 0.5 → E[Xᵢ] < 0 → E[Sₙ₊₁ | Sₙ] = Sₙ + E[X] < Sₙ. This is a <strong>super-martingale</strong>. Peter's wealth drifts downward toward ruin over time.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MENTOR LOGIN ═══════════ -->
+<div id="page-mentor-login" class="page">
+  <div style="max-width:360px;margin:3rem auto;">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="font-family:'Bangers',cursive;font-size:2.5rem;letter-spacing:3px;color:var(--yellow);">MENTOR ACCESS</div>
+      <div style="font-size:0.78rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;">View all student submissions</div>
+    </div>
+    <div class="comic-panel">
+      <div id="mentor-login-alert"></div>
+      <label class="field-label">Mentor Password</label>
+      <input class="field-input" id="mentor-pw" type="password" placeholder="••••••••••" onkeydown="if(event.key==='Enter')mentorLogin()"/>
+      <button class="btn-primary" onclick="mentorLogin()">🔐 Access Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MENTOR DASHBOARD ═══════════ -->
+<div id="page-mentor" class="page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+    <div>
+      <div style="font-family:'Bangers',cursive;font-size:2rem;letter-spacing:3px;color:var(--yellow);">MENTOR DASHBOARD</div>
+      <div style="font-size:0.75rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;" id="mentor-count">Loading submissions...</div>
+    </div>
+    <button onclick="showPage('landing')" style="background:none;border:1px solid rgba(245,240,232,0.15);color:rgba(245,240,232,0.5);padding:8px 14px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:0.72rem;">← Back</button>
+    <button onclick="exportCSV()" id="export-btn" style="background:rgba(0,200,150,0.1);border:1px solid rgba(0,200,150,0.3);color:var(--green);padding:8px 16px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:0.05em;">⬇ Export CSV</button>
+  </div>
+
+  <div id="mentor-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.5rem;"></div>
+
+  <div class="leaderboard" id="mentor-table">
+    <div class="lb-header">
+      <h2>📊 All Submissions</h2>
+    </div>
+    <div id="mentor-rows"></div>
+  </div>
+</div>
+
+<!-- Student detail modal -->
+<div class="modal-overlay" id="student-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let studentId = null;
+let mcqState = {};
+let mentorAuth = null;
+
+// ── Page routing ──────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── Slider sync ───────────────────────────────────────────────────────────────
+function syncSlider(id) {
+  const slider = document.getElementById(id + '-slider');
+  const display = document.getElementById(id + '-display');
+  const hidden = document.getElementById(id + '-val');
+  const val = parseFloat(slider.value);
+  const decimals = val < 1 ? 3 : 1;
+  display.textContent = val.toFixed(decimals);
+  if (hidden) hidden.value = val;
+  updateProgress();
+}
+
+// ── MCQ selection ─────────────────────────────────────────────────────────────
+function selectMCQ(groupId, el, value) {
+  document.querySelectorAll('#' + groupId + ' .mcq-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  mcqState[groupId] = value;
+  updateProgress();
+}
+
+// ── Progress bar ──────────────────────────────────────────────────────────────
+function updateProgress() {
+  const totalFields = 30;
+  let filled = 0;
+  // Sliders are always filled
+  ['q1a','q1b','q1d','q1e','q2b','q3a','q3b','q3d','q5d'].forEach(() => filled++);
+  // MCQs
+  ['q1c-dist','q2c-dist','q3c-opts','q3e-opts','q4b-opts','q4d-opts','q4e-opts','q5a-opts','q5b-opts','q5e-opts'].forEach(id => {
+    if (mcqState[id]) filled++;
+  });
+  // Text inputs
+  ['q1c-prob','q2a-p0','q2a-p1','q2a-p2','q2a-p3','q2d-ew','q2d-var','q4c-m','q4c-d','q4c-q','q5c'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value.trim()) filled++;
+  });
+  const pct = Math.min(100, Math.round((filled / totalFields) * 100));
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// Add listeners for text inputs
+document.addEventListener('input', e => {
+  if (e.target.classList.contains('num-input') || e.target.classList.contains('text-input-sm')) updateProgress();
+});
+
+// ── Register ──────────────────────────────────────────────────────────────────
+async function registerStudent() {
+  const name = document.getElementById('reg-name').value.trim();
+  const roll = document.getElementById('reg-roll').value.trim();
+  const alertEl = document.getElementById('register-alert');
+
+  if (!name || !roll) { showAlert(alertEl, 'error', 'Please enter both name and roll number.'); return; }
+
+  try {
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, roll })
+    });
+    const data = await res.json();
+
+    if (data.error === 'already_submitted') {
+      // Load their results
+      showAlert(alertEl, 'error', 'You have already submitted this quiz. Loading your results...');
+      studentId = data.studentId;
+      setTimeout(() => loadResults(), 1500);
+      return;
+    }
+
+    if (!res.ok) { showAlert(alertEl, 'error', data.error || 'Registration failed.'); return; }
+
+    studentId = data.studentId;
+    document.getElementById('quiz-student-badge').textContent = data.name + ' · ' + data.roll;
+    showPage('quiz');
+  } catch(e) {
+    showAlert(alertEl, 'error', 'Network error. Please try again.');
+  }
+}
+
+// ── Collect answers ───────────────────────────────────────────────────────────
+function collectAnswers() {
+  return {
+    q1: {
+      a: document.getElementById('q1a-val').value,
+      b: document.getElementById('q1b-val').value,
+      c_dist: mcqState['q1c-dist'] || '',
+      c_prob: document.getElementById('q1c-prob').value,
+      d: document.getElementById('q1d-val').value,
+      e: document.getElementById('q1e-val').value,
+    },
+    q2: {
+      a_p0: document.getElementById('q2a-p0').value,
+      a_p1: document.getElementById('q2a-p1').value,
+      a_p2: document.getElementById('q2a-p2').value,
+      a_p3: document.getElementById('q2a-p3').value,
+      b: document.getElementById('q2b-val').value,
+      c_dist: mcqState['q2c-dist'] || '',
+      d_ew: document.getElementById('q2d-ew').value,
+      d_var: document.getElementById('q2d-var').value,
+      e: document.getElementById('q2e').value,
+    },
+    q3: {
+      a: document.getElementById('q3a-val').value,
+      b: document.getElementById('q3b-val').value,
+      c: mcqState['q3c-opts'] || '',
+      d: document.getElementById('q3d-val').value,
+      e: mcqState['q3e-opts'] || '',
+    },
+    q4: {
+      a_mm: document.getElementById('q4-mm').value,
+      a_md: document.getElementById('q4-md').value,
+      a_mq: document.getElementById('q4-mq').value,
+      a_dm: document.getElementById('q4-dm').value,
+      a_dd: document.getElementById('q4-dd').value,
+      a_dq: document.getElementById('q4-dq').value,
+      a_qm: document.getElementById('q4-qm').value,
+      a_qd: document.getElementById('q4-qd').value,
+      a_qq: document.getElementById('q4-qq').value,
+      b: mcqState['q4b-opts'] || '',
+      c_m: document.getElementById('q4c-m').value,
+      c_d: document.getElementById('q4c-d').value,
+      c_q: document.getElementById('q4c-q').value,
+      d: mcqState['q4d-opts'] || '',
+      e: mcqState['q4e-opts'] || '',
+    },
+    q5: {
+      a: mcqState['q5a-opts'] || '',
+      b: mcqState['q5b-opts'] || '',
+      c: document.getElementById('q5c').value,
+      d: document.getElementById('q5d-val').value,
+      e: mcqState['q5e-opts'] || '',
+    }
+  };
+}
+
+// ── Submit quiz ───────────────────────────────────────────────────────────────
+async function submitQuiz() {
+  if (!studentId) return;
+  if (!confirm('Are you sure you want to submit? This is your one and only attempt.')) return;
+
+  const btn = document.getElementById('submit-btn');
+  const alertEl = document.getElementById('submit-alert');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  const answers = collectAnswers();
+
+  try {
+    const res = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId, answers })
+    });
+    const data = await res.json();
+    if (!res.ok) { showAlert(alertEl, 'error', data.error || 'Submission failed.'); btn.disabled = false; btn.textContent = '🕷 SUBMIT QUIZ'; return; }
+
+    renderResults(data, answers);
+    // Set student info on result page for fresh submissions
+    const badge = document.getElementById('quiz-student-badge').textContent;
+    document.getElementById('res-student-info').textContent = badge !== '—' ? badge : '';
+    showPage('results');
+  } catch(e) {
+    showAlert(alertEl, 'error', 'Network error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = '🕷 SUBMIT QUIZ';
+  }
+}
+
+// ── Load existing results ─────────────────────────────────────────────────────
+async function loadResults() {
+  const res = await fetch('/api/result/' + studentId);
+  const data = await res.json();
+  if (!res.ok) return;
+  renderResults({ score: data.score, maxScore: data.maxScore, breakdown: data.breakdown }, data.answers);
+  // Set student info
+  document.getElementById('res-student-info').textContent = data.name + ' · ' + data.roll;
+  showPage('results');
+}
+
+// ── Render results ────────────────────────────────────────────────────────────
+function renderResults(data, answers) {
+  const { score, maxScore, breakdown } = data;
+  const pct = score / maxScore;
+
+  document.getElementById('res-score').textContent = score.toFixed(2);
+  document.getElementById('res-denom').textContent = '/ ' + maxScore;
+
+  let grade, color;
+  if (pct >= 0.9) { grade = '🕷 SPECTACULAR!'; color = 'var(--green)'; }
+  else if (pct >= 0.75) { grade = '💥 AMAZING!'; color = 'var(--yellow)'; }
+  else if (pct >= 0.6) { grade = '⚡ FRIENDLY NEIGHBORHOOD'; color = 'var(--accent)'; }
+  else if (pct >= 0.4) { grade = '🌀 KEEP SWINGING'; color = 'rgba(245,240,232,0.7)'; }
+  else { grade = '💀 NEED MORE PRACTICE'; color = 'var(--red)'; }
+
+  const label = document.getElementById('res-grade-label');
+  label.textContent = grade;
+  label.style.color = color;
+
+  const bGrid = document.getElementById('res-breakdown');
+  bGrid.innerHTML = '';
+  const qNames = ['Q1','Q2','Q3','Q4','Q5'];
+  const qKeys = ['q1','q2','q3','q4','q5'];
+  qKeys.forEach((key, i) => {
+    const q = breakdown[key];
+    const pctQ = q.total / q.max;
+    const col = pctQ === 1 ? 'var(--green)' : pctQ >= 0.6 ? 'var(--yellow)' : 'var(--red)';
+    bGrid.innerHTML += `
+      <div class="breakdown-card">
+        <div class="q-name">${qNames[i]}</div>
+        <div class="q-score" style="color:${col}">${q.total.toFixed(2)}</div>
+        <div class="q-max">/ ${q.max}</div>
+      </div>`;
+  });
+
+  // Populate solution badges + student answer display
+  if (breakdown.q1 && answers && answers.q1) {
+    const p = breakdown.q1.parts; const a = answers.q1;
+    badge('sol1a', p.a, a.a || '—', '1', 1);
+    badge('sol1b', p.b, a.b || '—', '0.8647', 1);
+    badge('sol1c', p.c, `dist: "${a.c_dist || '—'}", prob: ${a.c_prob || '—'}`, 'Geometric, P(X=3)=0.125', 1);
+    badge('sol1d', p.d, a.d || '—', '2', 1);
+    badge('sol1e', p.e, a.e || '—', '2', 1);
+  }
+  if (breakdown.q2 && answers && answers.q2) {
+    const p = breakdown.q2.parts; const a = answers.q2;
+    // Q2a: multi-value (4 cells, each 0.25)
+    badgeMulti('sol2a', p.a, 1,
+      [
+        { label:'P(Y=0)', your: a.a_p0||'—', correct:'0.1667', weight:0.25 },
+        { label:'P(Y=1)', your: a.a_p1||'—', correct:'0.5000', weight:0.25 },
+        { label:'P(Y=2)', your: a.a_p2||'—', correct:'0.3000', weight:0.25 },
+        { label:'P(Y=3)', your: a.a_p3||'—', correct:'0.0333', weight:0.25 },
+      ]
+    );
+    badge('sol2b', p.b, a.b||'—', '1.2', 1);
+    badge('sol2c', p.c, a.c_dist||'—', 'Binomial(n=10, p=0.4)', 1);
+    // Q2d: multi-value (2 cells, each 0.5)
+    badgeMulti('sol2d', p.d, 1,
+      [
+        { label:'E[W]', your: a.d_ew||'—', correct:'4', weight:0.5 },
+        { label:'Var[W]', your: a.d_var||'—', correct:'2.4', weight:0.5 },
+      ]
+    );
+    badge('sol2e', p.e, a.e||'—', '2/N', 1);
+  }
+  if (breakdown.q3 && answers && answers.q3) {
+    const p = breakdown.q3.parts; const a = answers.q3;
+    badge('sol3a', p.a, a.a||'—', '0.25', 1);
+    badge('sol3b', p.b, a.b||'—', '0.04', 1);
+    badge('sol3c', p.c, a.c||'—', 'mgf_product', 1);
+    badge('sol3d', p.d, a.d||'—', '1/3 ≈ 0.333', 1);
+    badge('sol3e', p.e, a.e||'—', 'bounded_intervals', 1);
+  }
+  if (breakdown.q4 && answers && answers.q4) {
+    const p = breakdown.q4.parts; const a = answers.q4;
+    // Q4a: 9 matrix cells each worth 1/9
+    badgeMulti('sol4a', p.a, 1,
+      [
+        { label:'P(M→M)', your: a.a_mm||'', correct:'0', weight:1/9 },
+        { label:'P(M→D)', your: a.a_md||'—', correct:'0.5', weight:1/9 },
+        { label:'P(M→Q)', your: a.a_mq||'—', correct:'0.5', weight:1/9 },
+        { label:'P(D→M)', your: a.a_dm||'—', correct:'1', weight:1/9 },
+        { label:'P(D→D)', your: a.a_dd||'', correct:'0', weight:1/9 },
+        { label:'P(D→Q)', your: a.a_dq||'', correct:'0', weight:1/9 },
+        { label:'P(Q→M)', your: a.a_qm||'—', correct:'1', weight:1/9 },
+        { label:'P(Q→D)', your: a.a_qd||'', correct:'0', weight:1/9 },
+        { label:'P(Q→Q)', your: a.a_qq||'', correct:'0', weight:1/9 },
+      ]
+    );
+    badge('sol4b', p.b, a.b||'—', 'current_only', 1);
+    // Q4c: 3 cells each worth 1/3
+    badgeMulti('sol4c', p.c, 1,
+      [
+        { label:'P(M)', your: a.c_m||'', correct:'0', weight:1/3 },
+        { label:'P(D)', your: a.c_d||'—', correct:'0.5', weight:1/3 },
+        { label:'P(Q)', your: a.c_q||'—', correct:'0.5', weight:1/3 },
+      ]
+    );
+    badge('sol4d', p.d, a.d||'—', 'all_recurrent', 1);
+    badge('sol4e', p.e, a.e||'—', 'tractable_value', 1);
+  }
+  if (breakdown.q5 && answers && answers.q5) {
+    const p = breakdown.q5.parts; const a = answers.q5;
+    badge('sol5a', p.a, a.a||'—', 'equals_sn', 1);
+    badge('sol5b', p.b, a.b||'—', 'fair_game', 1);
+    badge('sol5c', p.c, a.c||'—', 'k (or 5)', 1);
+    badge('sol5d', p.d, a.d||'—', '0.5', 1);
+    badge('sol5e', p.e, a.e||'—', 'super_martingale', 1);
+  }
+}
+
+// Render badge + your answer + correct answer + marks for a single-value part
+function badge(id, score, yourAns, correctAns, maxMark) {
+  const el = document.getElementById(id + '-badge');
+  if (!el) return;
+  const unattempted = (yourAns === '' || yourAns === '—' || yourAns === null || yourAns === undefined);
+  const pillClass = unattempted ? 'skip' : score >= maxMark ? 'full' : score > 0 ? 'part' : 'zero';
+  const pillLabel = unattempted ? '— Not Attempted' : score >= maxMark ? '✓ Correct' : score > 0 ? '½ Partial' : '✗ Incorrect';
+  const ansClass  = unattempted ? 'unattempted-ans' : score >= maxMark ? 'correct-ans' : score > 0 ? 'partial-ans' : 'wrong-ans';
+  const ansText   = unattempted ? 'Not attempted' : yourAns;
+  el.innerHTML = `
+    <div class="part-marks-row">
+      <span class="your-ans-label">Your answer:</span>
+      <span class="your-ans-value ${ansClass}">${ansText}</span>
+      <span class="part-score-pill ${pillClass}">${pillLabel} · ${score.toFixed(2)}/${maxMark.toFixed(2)}</span>
+    </div>`;
+}
+
+// Render badge for multi-value parts (each cell shown with individual correctness)
+function badgeMulti(id, totalScore, maxMark, cells) {
+  const el = document.getElementById(id + '-badge');
+  if (!el) return;
+  const allUnattempted = cells.every(c => c.your === '' || c.your === '—' || c.your == null);
+  const pillClass = allUnattempted ? 'skip' : totalScore >= maxMark ? 'full' : totalScore > 0 ? 'part' : 'zero';
+  const pillLabel = allUnattempted ? '— Not Attempted' : totalScore >= maxMark ? '✓ Full marks' : totalScore > 0 ? '½ Partial' : '✗ Incorrect';
+  let cellsHtml = cells.map(c => {
+    const unattempted = (c.your === '' || c.your === '—' || c.your == null);
+    const earned = unattempted ? 0 : approxScore(c.your, c.correct, c.weight);
+    const cls = unattempted ? 'uv' : earned >= c.weight ? 'cv' : 'wv';
+    const display = unattempted ? '—' : c.your;
+    return `<div class="multi-ans-cell">
+      <span class="cell-label">${c.label}</span>
+      <span class="cell-val ${cls}" title="Correct: ${c.correct}">${display}</span>
+    </div>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="part-marks-row" style="flex-wrap:wrap;gap:0.3rem;">
+      <span class="part-score-pill ${pillClass}" style="margin-left:0;">${pillLabel} · ${totalScore.toFixed(2)}/${maxMark.toFixed(2)}</span>
+    </div>
+    <div class="multi-ans-grid">${cellsHtml}</div>
+    <div style="font-size:0.68rem;color:rgba(245,240,232,0.3);font-family:'DM Mono',monospace;margin-top:0.2rem;">Green = correct · Red = wrong · Grey = not attempted (hover for correct value)</div>`;
+}
+
+// Approximate correctness check mirroring server-side isClose
+function approxScore(val, correctStr, weight) {
+  if (!val || val === '—') return 0;
+  // Try numeric comparison
+  const n = parseFloat(val);
+  const target = parseFloat(correctStr);
+  if (!isNaN(n) && !isNaN(target)) {
+    return Math.abs(n - target) <= 0.05 ? weight : 0;
+  }
+  // String comparison (MCQ keys)
+  return val.trim().toLowerCase() === correctStr.trim().toLowerCase() ? weight : 0;
+}
+
+function toggleSol(btn) {
+  btn.classList.toggle('open');
+  btn.nextElementSibling.classList.toggle('open');
+}
+
+// ── Mentor ────────────────────────────────────────────────────────────────────
+async function mentorLogin() {
+  const pw = document.getElementById('mentor-pw').value;
+  const alertEl = document.getElementById('mentor-login-alert');
+  if (!pw) { showAlert(alertEl, 'error', 'Please enter the password.'); return; }
+  try {
+    const res = await fetch('/api/mentor/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    const data = await res.json();
+    if (!res.ok) { showAlert(alertEl, 'error', 'Incorrect password.'); return; }
+    mentorAuth = pw;
+    loadMentorDashboard();
+  } catch(e) {
+    showAlert(alertEl, 'error', 'Network error. Please try again.');
+  }
+}
+
+async function exportCSV() {
+  const btn = document.getElementById('export-btn');
+  btn.textContent = 'Exporting...';
+  try {
+    const res = await fetch('/api/mentor/export', { headers: { 'x-mentor-auth': mentorAuth } });
+    if (!res.ok) { alert('Export failed.'); btn.textContent = '⬇ Export CSV'; return; }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'rl-quiz-results.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) {
+    alert('Export failed. Please try again.');
+  }
+  btn.textContent = '⬇ Export CSV';
+}
+
+
+async function loadMentorDashboard() {
+  showPage('mentor');
+  document.getElementById('mentor-rows').innerHTML = '<div class="spinner"></div>';
+
+  const res = await fetch('/api/mentor/results', { headers: { 'x-mentor-auth': mentorAuth } });
+  const data = await res.json();
+
+  if (!Array.isArray(data)) { document.getElementById('mentor-rows').innerHTML = '<p style="padding:1rem;color:var(--red);">Failed to load.</p>'; return; }
+
+  document.getElementById('mentor-count').textContent = data.length + ' submission' + (data.length !== 1 ? 's' : '') + ' received';
+
+  // Stats
+  if (data.length > 0) {
+    const avg = data.reduce((s, r) => s + r.score, 0) / data.length;
+    const high = Math.max(...data.map(r => r.score));
+    const low = Math.min(...data.map(r => r.score));
+    const pass = data.filter(r => r.score >= 15).length;
+    document.getElementById('mentor-stats').innerHTML = `
+      <div class="info-card"><div class="num">${avg.toFixed(2)}</div><div class="lbl">Avg Score</div></div>
+      <div class="info-card"><div class="num">${high}</div><div class="lbl">Highest</div></div>
+      <div class="info-card"><div class="num">${low}</div><div class="lbl">Lowest</div></div>
+      <div class="info-card"><div class="num">${pass}</div><div class="lbl">≥15 pts</div></div>`;
+  }
+
+  // Table
+  let html = `
+    <div class="lb-row header-row">
+      <div>Rank</div><div>Student</div><div>Score</div><div>%</div><div class="lb-date">Submitted</div>
+    </div>`;
+
+  data.forEach((r, i) => {
+    const pct = Math.round((r.score / r.max_score) * 100);
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const date = new Date(r.submitted_at).toLocaleString();
+    html += `
+      <div class="lb-row" style="cursor:pointer;" onclick="showStudentDetail(${JSON.stringify(r).replace(/"/g, '&quot;')})">
+        <div class="rank-badge ${rankClass}">${i+1}</div>
+        <div>
+          <div style="font-weight:600;">${escHtml(r.name)}</div>
+          <div style="font-size:0.72rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;">${escHtml(r.roll)}</div>
+        </div>
+        <div>
+          <div style="font-family:'Bangers',cursive;font-size:1.2rem;color:${pct>=80?'var(--green)':pct>=60?'var(--yellow)':'var(--red)'};">${(+r.score).toFixed(2)}</div>
+          <div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.82rem;color:rgba(245,240,232,0.5);">${pct}%</div>
+        <div class="lb-date" style="font-family:'DM Mono',monospace;font-size:0.72rem;color:rgba(245,240,232,0.35);">${date}</div>
+      </div>`;
+  });
+
+  document.getElementById('mentor-rows').innerHTML = html;
+}
+
+function showStudentDetail(r) {
+  const bd = r.breakdown;
+  const qNames = ['Q1','Q2','Q3','Q4','Q5'];
+  const qKeys = ['q1','q2','q3','q4','q5'];
+  let partsHtml = qKeys.map((key, i) => {
+    if (!bd[key]) return '';
+    const parts = bd[key].parts;
+    const partItems = Object.entries(parts).map(([p, v]) => {
+      const col = v >= 1 ? 'var(--green)' : v > 0 ? 'var(--yellow)' : 'var(--red)';
+      return `<span style="font-family:'DM Mono',monospace;font-size:0.78rem;padding:2px 8px;background:rgba(255,255,255,0.04);border-radius:3px;margin:2px;display:inline-block;color:${col};">${p.toUpperCase()}: ${(+v).toFixed(2)}</span>`;
+    }).join('');
+    return `<div style="margin-bottom:0.75rem;">
+      <div style="font-size:0.8rem;font-weight:700;margin-bottom:4px;color:var(--yellow);">${qNames[i]} — ${(+bd[key].total).toFixed(2)}/${bd[key].max}</div>
+      <div>${partItems}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('modal-content').innerHTML = `
+    <div style="font-family:'Bangers',cursive;font-size:1.8rem;letter-spacing:2px;margin-bottom:0.25rem;">${escHtml(r.name)}</div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.75rem;color:rgba(245,240,232,0.4);margin-bottom:1.5rem;">${escHtml(r.roll)} · ${new Date(r.submitted_at).toLocaleString()}</div>
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+      <div style="font-family:'Bangers',cursive;font-size:3rem;color:var(--red);line-height:1;">${(+r.score).toFixed(2)}</div>
+      <div style="font-size:0.8rem;color:rgba(245,240,232,0.4);font-family:'DM Mono',monospace;">/ ${r.max_score} marks<br>${Math.round(r.score/r.max_score*100)}%</div>
+    </div>
+    <div>${partsHtml}</div>`;
+
+  document.getElementById('student-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('student-modal').classList.remove('open');
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function showAlert(el, type, msg) {
+  el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 5000);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Close modal on overlay click
+document.getElementById('student-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Initialize slider displays
+['q1a','q1b','q1d','q1e','q2b','q3a','q3b','q3d','q5d'].forEach(id => syncSlider(id));
+</script>
+</body>
+</html>

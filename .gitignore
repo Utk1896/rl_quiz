@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Database (contains student data — never commit this)
+data/
+*.db
+*.db-journal
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Environment secrets
+.env
+.env.*

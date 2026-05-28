@@ -1,0 +1,15 @@
+{
+  "name": "rl-quiz",
+  "version": "1.0.0",
+  "description": "RL Assignment 1 Quiz Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.3",
+    "sql.js": "^1.10.3",
+    "uuid": "^9.0.1"
+  }
+}
